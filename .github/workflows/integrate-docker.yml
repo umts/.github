@@ -1,0 +1,12 @@
+on:
+  workflow_call:
+    inputs:
+      build_args:
+        required: false
+        type: string
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: docker build --tag ${{ github.event.repository.name }} ${{ inputs.build_args }} .
