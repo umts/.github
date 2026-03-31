@@ -1,0 +1,17 @@
+on:
+  workflow_call:
+    inputs:
+      setup_command:
+        required: false
+        type: string
+jobs:
+  rspec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - if: ${{ inputs.setup_command != '' }}
+        run: ${{ inputs.setup_command }}
+      - run: bundle exec rspec
