@@ -1,0 +1,15 @@
+on:
+  workflow_call:
+jobs:
+  eslint:
+    name: vite
+    uses: ./.github/workflows/eslint.yml
+  stylelint:
+    name: vite
+    uses: ./.github/workflows/stylelint.yml
+  vite:
+    name: vite
+    uses: ./.github/workflows/vite.yml
+  vitest:
+    name: vite
+    uses: ./.github/workflows/vitest.yml

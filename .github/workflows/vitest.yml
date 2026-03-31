@@ -1,0 +1,14 @@
+on:
+  workflow_call:
+jobs:
+  vitest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: grep -q '"playwright"' package.json && npx playwright install --with-deps
+      - run: npx vitest run
