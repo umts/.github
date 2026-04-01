@@ -10,5 +10,5 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci
-      - run: grep -q '"playwright"' package.json && npx playwright install --with-deps
+      - run: (grep -q '"playwright"' package.json && npx playwright install --with-deps) || true
       - run: npx vitest run
