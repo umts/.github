@@ -23,7 +23,8 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
+      - if: ${{ inputs.node }}
+        run: npm ci
       - if: ${{ inputs.setup_command != '' }}
         run: ${{ inputs.setup_command }}
       - run: bundle exec rspec
