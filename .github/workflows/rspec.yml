@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      node:
+        required: false
+        type: boolean
       setup_command:
         required: false
         type: string
@@ -14,6 +17,12 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - if: ${{ inputs.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
       - if: ${{ inputs.setup_command != '' }}
         run: ${{ inputs.setup_command }}
       - run: bundle exec rspec
