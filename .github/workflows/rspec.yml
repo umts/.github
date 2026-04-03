@@ -2,16 +2,59 @@ on:
   workflow_call:
     inputs:
       node:
-        required: false
         type: boolean
-      setup_command:
         required: false
+        default: false
+      rack:
+        type: boolean
+        required: false
+        default: false
+      rails:
+        type: boolean
+        required: false
+        default: false
+      setup_command:
         type: string
+        required: false
+      trilogy:
+        type: boolean
+        required: false
+        default: false
 jobs:
   rspec:
+    if: ${{ !inputs.trilogy }}
     runs-on: ubuntu-latest
     env:
-      RACK_ENV: test
+      RACK_ENV: ${{ (inputs.rack && 'test') || '' }}
+      RAILS_ENV: ${{ (inputs.rails && 'test') || '' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - if: ${{ inputs.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - if: ${{ inputs.setup_command != '' }}
+        run: ${{ inputs.setup_command }}
+      - run: bundle exec rspec
+  rspec-trilogy:
+    if: ${{ inputs.trilogy }}
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        ports:
+          - 3306:3306
+    env:
+      DATABASE_URL: trilogy://root@127.0.0.1:3306/test
+      RACK_ENV: ${{ (inputs.rack && 'test') || '' }}
+      RAILS_ENV: ${{ (inputs.rails && 'test') || '' }}
     steps:
       - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1

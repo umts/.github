@@ -15,7 +15,12 @@ jobs:
     uses: ./.github/workflows/haml-lint.yml
   rspec:
     name: rails
-    uses: ./.github/workflows/rspec-rails.yml
+    uses: ./.github/workflows/rspec.yml
+    with:
+      node: true
+      rails: true
+      setup_command: bin/rails db:create db:schema:load test:prepare
+      trilogy: true
   rubocop:
     name: rails
     uses: ./.github/workflows/rubocop.yml
