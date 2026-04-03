@@ -1,9 +1,13 @@
 on:
   workflow_call:
     inputs:
-      setup_command:
+      node:
+        type: boolean
         required: false
+        default: false
+      setup_command:
         type: string
+        required: false
 jobs:
   rspec:
     runs-on: ubuntu-latest
@@ -14,6 +18,13 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - if: ${{ inputs.node }}
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - if: ${{ inputs.node }}
+        run: npm ci
       - if: ${{ inputs.setup_command != '' }}
         run: ${{ inputs.setup_command }}
       - run: bundle exec rspec
