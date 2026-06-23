@@ -4,7 +4,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: |
           BUILD_ARGS=""
           [ -f .node-version ] && BUILD_ARGS="$BUILD_ARGS --build-arg NODE_VERSION=$(cat .node-version)"
