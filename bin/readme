@@ -84,20 +84,22 @@ function renderDashboard(repos) {
   const appRows = apps.map((repo) => `<tr>${renderRepoCell(repo)}${renderStackCell(repo)}${renderSiteCell(repo)}</tr>`).join("\n");
   const others = repos.filter((r) => !(r.homepageUrl));
   const otherRows = others.map((repo) => `<tr>${renderRepoCell(repo)}${renderStackCell(repo)}<td></td></tr>`).join("\n");
-  return `<table>
-  <tbody>
-    <tr>
-      <th align="left" colspan="3">Applications</th>
-    </tr>
-    ${appRows}
-  </tbody>
-  <tbody>
-    <tr>
-      <th align="left" colspan="3">Libraries, Tools & Infrastructure</th>
-    </tr>
-    ${otherRows}
-  </tbody>
-</table>`.trim().replace(/\s+/g, ' ');
+  return `<div align="center">
+  <table>
+    <tbody>
+      <tr>
+        <th align="left" colspan="3">Applications</th>
+      </tr>
+      ${appRows}
+    </tbody>
+    <tbody>
+      <tr>
+        <th align="left" colspan="3">Libraries, Tools & Infrastructure</th>
+      </tr>
+      ${otherRows}
+    </tbody>
+  </table>
+</div>`.trim().replace(/\s+/g, ' ');
 }
 
 function renderRepoCell(repo) {
