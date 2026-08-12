@@ -81,9 +81,19 @@ function repoStackOrder(repo) {
 
 function renderDashboard(repos) {
   const apps = repos.filter((r) => r.homepageUrl);
-  const appRows = apps.map((repo) => `<tr>${renderRepoCell(repo)}${renderStackCell(repo)}${renderSiteCell(repo)}</tr>`).join("\n");
+  const appRows = apps.map((repo) => `<tr>
+  ${renderRepoCell(repo)}
+  ${renderSiteCell(repo)}
+  ${renderStackCell(repo)}
+</tr>`).join("\n");
+
   const others = repos.filter((r) => !(r.homepageUrl));
-  const otherRows = others.map((repo) => `<tr>${renderRepoCell(repo)}${renderStackCell(repo)}<td></td></tr>`).join("\n");
+  const otherRows = others.map((repo) => `<tr>
+  ${renderRepoCell(repo)}
+  <td></td>
+  ${renderStackCell(repo)}
+</tr>`).join("\n");
+
   return `<div align="center">
   <table>
     <tbody>
