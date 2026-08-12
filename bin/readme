@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+
+import { readFileSync, writeFileSync } from "node:fs";
+
+const org = "umts";
+const token = process.env.GH_TOKEN;
+
+async function fetchRepos() {
+  const query = `
+    query($org: String!, $cursor: String) {
+      organization(login: $org) {
+        repositories(first: 100, after: $cursor, isArchived: false) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            name
+            visibility
+            homepageUrl
+            defaultBranchRef {
+              name
+            }
+            repositoryCustomPropertyValues(first: 100) {
+              nodes {
+                propertyName
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  const repos = [];
+  let cursor = null;
+  while (true) {
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables: { org, cursor } }),
+    });
+    const json = await res.json();
+    if (json.errors || !json.data) {
+      console.error(JSON.stringify(json, null, 2));
+      process.exit(1);
+    }
+    const { nodes, pageInfo } = json.data.organization.repositories;
+    repos.push(...nodes);
+    if (!pageInfo.hasNextPage) break;
+    cursor = pageInfo.endCursor;
+  }
+  return repos.filter((r) =>
+    r.repositoryCustomPropertyValues.nodes.some((p) => p.propertyName === "dashboard" && p.value.includes("true")),
+  ).sort((r1, r2) => r1.name.localeCompare(r2.name));
+}
+
+function renderDashboard(repos) {
+  const apps = repos.filter((r) => r.homepageUrl);
+  const appRows = apps.map((repo) => `<tr>${renderRepoCell(repo)}${renderSiteCell(repo)}</tr>`).join("\n");
+  const others = repos.filter((r) => !(r.homepageUrl));
+  const otherRows = others.map((repo) => `<tr>${renderRepoCell(repo)}<td></td></tr>`).join("\n");
+  return `<table>
+  <tbody>
+    <tr>
+      <th align="left" colspan="2">Applications</th>
+    </tr>
+    ${appRows}
+  </tbody>
+  <tbody>
+    <tr>
+      <th align="left" colspan="2">Libraries, Tools & Infrastructure</th>
+    </tr>
+    ${otherRows}
+  </tbody>
+</table>`.trim().replace(/\s+/g, ' ');
+}
+
+function renderRepoCell(repo) {
+  const checksBadge =
+    !(repo.defaultBranchRef)
+      ? ""
+      : repo.visibility === "PRIVATE"
+        ? `<img align="right" src="https://img.shields.io/badge/private-999" />`
+        : `<img align="right" src="https://img.shields.io/github/check-runs/${org}/${repo.name}/${repo.defaultBranchRef.name}?label=" />`;
+  return `<td>
+  <a href="https://github.com/${org}/${repo.name}">
+    <strong>${repo.name}</strong>
+  </a>
+  ${checksBadge}
+</td>`;
+}
+
+function renderSiteCell(repo) {
+  return `<td>
+  <a href="${repo.homepageUrl}">${repo.homepageUrl}</a>
+  <img align="right" src="https://img.shields.io/website?url=${encodeURIComponent(`${repo.homepageUrl}/up`)}&label=" />
+</td>`;
+}
+
+const repos = await fetchRepos();
+const dashboard = renderDashboard(repos);
+const template = readFileSync("profile/README.template.md", "utf-8");
+writeFileSync("profile/README.md", template.replace("{{dashboard}}", dashboard));
