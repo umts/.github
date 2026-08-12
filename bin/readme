@@ -106,22 +106,20 @@ function renderDashboard(repos) {
     )
     .join("\n");
 
-  return `<div align="center">
-  <table>
-    <tbody>
-      <tr>
-        <th align="left" colspan="3">Applications</th>
-      </tr>
-      ${appRows}
-    </tbody>
-    <tbody>
-      <tr>
-        <th align="left" colspan="3">Libraries, Tools & Infrastructure</th>
-      </tr>
-      ${otherRows}
-    </tbody>
-  </table>
-</div>`
+  return `<table>
+  <tbody>
+    <tr>
+      <th align="left" colspan="3">Applications</th>
+    </tr>
+    ${appRows}
+  </tbody>
+  <tbody>
+    <tr>
+      <th align="left" colspan="3">Libraries, Tools & Infrastructure</th>
+    </tr>
+    ${otherRows}
+  </tbody>
+</table>`
     .trim()
     .replace(/\s+/g, " ");
 }
