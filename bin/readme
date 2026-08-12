@@ -5,9 +5,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 const token = process.env.GH_TOKEN;
 const org = "umts";
 const stacks = {
-  rails: 'rails-CC0000?logo=ruby-on-rails',
-  sinatra: 'sinatra-000000?logo=ruby-sinatra',
-  react: 'react-61DAFB?logo=react&logoColor=black'
+  rails: "rails-CC0000?logo=ruby-on-rails",
+  sinatra: "sinatra-000000?logo=ruby-sinatra",
+  react: "react-61DAFB?logo=react&logoColor=black",
 };
 
 async function fetchRepos() {
@@ -63,13 +63,17 @@ async function fetchRepos() {
     if (!pageInfo.hasNextPage) break;
     cursor = pageInfo.endCursor;
   }
-  return repos.filter((r) =>
-    r.repositoryCustomPropertyValues.nodes.some((p) => p.propertyName === "dashboard" && p.value.includes("true")),
-  ).sort((r1, r2) => {
-    const s1 = repoStackOrder(r1);
-    const s2 = repoStackOrder(r2);
-    return (s1 !== s2) ? s1 - s2 : r1.name.localeCompare(r2.name);
-  });
+  return repos
+    .filter((r) =>
+      r.repositoryCustomPropertyValues.nodes.some(
+        (p) => p.propertyName === "dashboard" && p.value.includes("true"),
+      ),
+    )
+    .sort((r1, r2) => {
+      const s1 = repoStackOrder(r1);
+      const s2 = repoStackOrder(r2);
+      return s1 !== s2 ? s1 - s2 : r1.name.localeCompare(r2.name);
+    });
 }
 
 function repoStackOrder(repo) {
@@ -81,18 +85,26 @@ function repoStackOrder(repo) {
 
 function renderDashboard(repos) {
   const apps = repos.filter((r) => r.homepageUrl);
-  const appRows = apps.map((repo) => `<tr>
+  const appRows = apps
+    .map(
+      (repo) => `<tr>
   ${renderRepoCell(repo)}
   ${renderSiteCell(repo)}
   ${renderStackCell(repo)}
-</tr>`).join("\n");
+</tr>`,
+    )
+    .join("\n");
 
-  const others = repos.filter((r) => !(r.homepageUrl));
-  const otherRows = others.map((repo) => `<tr>
+  const others = repos.filter((r) => !r.homepageUrl);
+  const otherRows = others
+    .map(
+      (repo) => `<tr>
   ${renderRepoCell(repo)}
   <td></td>
   ${renderStackCell(repo)}
-</tr>`).join("\n");
+</tr>`,
+    )
+    .join("\n");
 
   return `<div align="center">
   <table>
@@ -109,16 +121,17 @@ function renderDashboard(repos) {
       ${otherRows}
     </tbody>
   </table>
-</div>`.trim().replace(/\s+/g, ' ');
+</div>`
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
 function renderRepoCell(repo) {
-  const checksBadge =
-    !(repo.defaultBranchRef)
-      ? ""
-      : repo.visibility === "PRIVATE"
-        ? `<img align="right" src="https://img.shields.io/badge/private-999" />`
-        : `<img align="right" src="https://img.shields.io/github/check-runs/${org}/${repo.name}/${repo.defaultBranchRef.name}?label=" />`;
+  const checksBadge = !repo.defaultBranchRef
+    ? ""
+    : repo.visibility === "PRIVATE"
+      ? `<img align="right" src="https://img.shields.io/badge/private-999" />`
+      : `<img align="right" src="https://img.shields.io/github/check-runs/${org}/${repo.name}/${repo.defaultBranchRef.name}?label=" />`;
   return `<td>
   <a href="https://github.com/${org}/${repo.name}">
     <strong>${repo.name}</strong>
