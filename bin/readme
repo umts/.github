@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
+import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
-const token = process.env.GH_TOKEN;
+const token = process.env.GH_TOKEN || execSync('gh auth token').toString().trim();
 const org = "umts";
 const stacks = {
   rails: "rails-CC0000?logo=ruby-on-rails",
